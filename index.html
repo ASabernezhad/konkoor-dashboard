@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>داشبورد تست</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <button id="theme-toggle" class="theme-toggle" title="تغییر تم">🌙</button>
+
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <h1>🎯 داشبورد تست</h1>
+        <div class="sub" id="todayLabel"></div>
+      </div>
+      <div class="badge-streak" title="روزهای پشت سرهم">
+        <span class="fire">🔥</span>
+        <div>
+          <div class="n" id="streakBig">۰</div>
+          <div class="cap">روز پشت‌سرهم</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="countdown glass">
+      <div class="overall-progress glass">
+  <div class="op-head">
+    <span class="op-title">🎯 پیشرفت کل مسیر</span>
+    <span class="op-pct" id="overallPct">۰٪</span>
+  </div>
+  <div class="op-bar">
+    <div class="op-fill" id="overallFill" style="width:0%"></div>
+  </div>
+  <div class="op-detail" id="overallDetail">۰ از ۰ تست</div>
+</div>
+      <div class="big" id="cd-days">--</div>
+      <div class="lbl">روز تا ۲۹ اسفند ۱۴۰۵</div>
+      <div class="info" id="cd-info"></div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="section-title">📊 نمودار پیشرفت</div>
+    <div class="chart-panel glass">
+      <canvas id="progressChart" height="220"></canvas>
+    </div>
+
+    <div class="section-title">📅 تقویم تست‌ها</div>
+    <div class="calendar-panel glass">
+      <div class="cal-head">
+        <button id="cal-prev">◀ ماه قبل</button>
+        <div class="cal-title" id="cal-title"></div>
+        <button id="cal-next">ماه بعد ▶</button>
+      </div>
+      <div class="cal-weekdays">
+        <span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <div class="section-title">📚 درس‌ها · هدف داینامیک</div>
+    <div class="cards" id="cards"></div>
+
+    <div class="section-title">✍️ ثبت تست</div>
+    <div class="form-grid glass">
+      <div>
+        <label>درس</label>
+        <select id="f-lesson"></select>
+      </div>
+      <div>
+        <label>تعداد تست</label>
+        <input type="number" id="f-done" min="1" placeholder="مثلاً ۳۰" inputmode="numeric">
+      </div>
+      <div>
+        <label>تاریخ (از تقویم انتخاب کن)</label>
+        <input type="text" id="f-date" readonly style="cursor:pointer; text-align:center; direction:ltr;">
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button id="btn-add" style="flex:1;">➕ ثبت</button>
+        <button id="btn-export" class="btn-export">📥 خروجی</button>
+        <label class="btn-import">
+          📤 ورود
+          <input type="file" accept=".csv" hidden id="f-import">
+        </label>
+      </div>
+    </div>
+
+    <div class="section-title">🏆 دستاوردها</div>
+    <div class="achievements" id="achievements"></div>
+
+    <div class="section-title">📝 تاریخچه</div>
+    <div class="logs" id="logs"></div>
+  </div>
+
+  <div class="toast" id="toast">✅ ثبت شد</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
