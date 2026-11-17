@@ -12,17 +12,7 @@
   const END_JY = 1405, END_JM = 12, END_JD = 29;
   const STORAGE_KEY = 'konkoor_dashboard_v6';
 
-  const ACHIEVEMENTS = [
-    { id: 'first', name: '🎯 اولین قدم', desc: 'اولین تستت رو ثبت کردی', check: function(s){ return s.logs.length >= 1; } },
-    { id: 'ten', name: '📚 ده‌تایی', desc: '۱۰ گزارش ثبت شد', check: function(s){ return s.logs.length >= 10; } },
-    { id: 'streak7', name: '🔥 یک هفته', desc: '۷ روز پشت‌سرهم', check: function(){ return calcCurrentStreak() >= 7; } },
-    { id: 'streak30', name: '💎 یک ماه', desc: '۳۰ روز پشت‌سرهم', check: function(){ return calcCurrentStreak() >= 30; } },
-    { id: 'grand1000', name: '👑 هزار تست', desc: '۱۰۰۰ تست زدی', check: function(){ return totalDone() >= 1000; } },
-    { id: 'master', name: '🎓 استاد', desc: 'همه‌ی درس‌ها بالای ۵۰٪', check: function(){
-      var d = donePerLesson();
-      return LESSONS.every(function(l){ return d[l.id] >= l.total/2; });
-    }},
-  ];
+
 
   let currentCalJY = 1403;
   let currentCalJM = 1;
@@ -167,18 +157,7 @@
     return n;
   }
 
-  /* ====== دستاوردها ====== */
-  function checkAchievements() {
-    var unlocked = JSON.parse(localStorage.getItem('achievements') || '[]');
-    ACHIEVEMENTS.forEach(function(a) {
-      if (unlocked.indexOf(a.id) === -1 && a.check(state)) {
-        unlocked.push(a.id);
-        setTimeout(function(){ toast('🏆 دستاورد: ' + a.name, 'linear-gradient(135deg,#eab308,#f59e0b)'); }, 500);
-      }
-    });
-    localStorage.setItem('achievements', JSON.stringify(unlocked));
-    return unlocked;
-  }
+
 
   /* ====== رندر ====== */
   function renderCountdown(){
@@ -270,17 +249,7 @@
     }
   }
 
-  function renderAchievements(){
-    var unlocked = JSON.parse(localStorage.getItem('achievements') || '[]');
-    document.getElementById('achievements').innerHTML = ACHIEVEMENTS.map(function(a){
-      var isUnlocked = unlocked.indexOf(a.id) !== -1;
-      return '<div class="achievement ' + (isUnlocked ? 'unlocked' : '') + '">' +
-        '<div class="icon">' + (isUnlocked ? a.name.split(' ')[0] : '🔒') + '</div>' +
-        '<div class="title">' + a.name.replace(/^[^\s]+\s/, '') + '</div>' +
-        '<div class="desc">' + a.desc + '</div>' +
-      '</div>';
-    }).join('');
-  }
+
 
   function renderLogs(){
     var el = document.getElementById('logs');
@@ -370,8 +339,7 @@
     try{ renderCalendar(); } catch(e){ console.warn(e); }
     try{ renderCards(); } catch(e){ console.warn(e); }
     try{ renderForm(); } catch(e){ console.warn(e); }
-    try{ renderAchievements(); } catch(e){ console.warn(e); }
-    try{ renderLogs(); } catch(e){ console.warn(e); }
+      try{ renderLogs(); } catch(e){ console.warn(e); }
 
     try{
       document.getElementById('todayLabel').textContent =
@@ -380,7 +348,6 @@
       document.getElementById('todayLabel').textContent = faDigits(todayStr());
     }
     document.getElementById('streakBig').textContent = fmtFa(calcCurrentStreak());
-    checkAchievements();
   }
 
   function toast(msg, color){
