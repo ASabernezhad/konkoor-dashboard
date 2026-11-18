@@ -335,6 +335,7 @@
   function renderAll(){
     try{ renderCountdown(); } catch(e){ console.warn(e); }
     try{ renderStats(); } catch(e){ console.warn(e); }
+    try{ renderHeatmap(); } catch(e){ console.warn(e); }
     try{ renderChart(); } catch(e){ console.warn(e); }
     try{ renderCalendar(); } catch(e){ console.warn(e); }
     try{ renderCards(); } catch(e){ console.warn(e); }
@@ -456,7 +457,121 @@
       renderChart();
     });
   }
+function initScrollReveal() {
+  var elements = document.querySelectorAll(
+    '.countdown, .stats, .chart-panel, .calendar-panel, .cards, .form-grid, .logs, .section-title'
+  );
+  
+  elements.forEach(function(el) {
+    el.classList.add('reveal');
+  });
+  
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  elements.forEach(function(el) {
+    observer.observe(el);
+  });
+}
+function renderHeatmap() {
+  var grid = document.getElementById('heatmap-grid');
+  var monthsContainer = document.getElementById('heatmap-months');
+  if (!grid || !monthsContainer) return;
 
+  // ۱۲ هفته‌ی اخیر (۸۴ روز) رو نشون می‌دیم
+  var WEEKS = 12;
+  var totalDays = WEEKS * 7;
+  
+  // محاسبه‌ی مجموع تست هر روز
+  var dailyTotals = {};
+  state.logs.forEach(function(lg) {
+    var d = lg.date;
+    dailyTotals[d] = (dailyTotals[d] || 0) + (Number(lg.done) || 0);
+  });
+
+  // پیدا کردن بیشترین مقدار برای نرمال‌سازی
+  var values = Object.values(dailyTotals);
+  var maxVal = values.length > 0 ? Math.max.apply(null, values) : 0;
+  if (maxVal === 0) maxVal = 1;
+
+  // تعیین سطح (۰ تا ۴)
+  function getLevel(count) {
+    if (count === 0) return 0;
+    var ratio = count / maxVal;
+    if (ratio < 0.15) return 1;
+    if (ratio < 0.4) return 2;
+    if (ratio < 0.7) return 3;
+    return 4;
+  }
+
+  // تاریخ شروع: ۱۲ هفته قبل، از شنبه شروع کنیم
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  
+  // پیدا کردن شنبه‌ی هفته‌ی جاری
+  var todayDow = (today.getDay() + 1) % 7; // ۰=شنبه
+  var startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - todayDow - (WEEKS - 1) * 7);
+
+  // ساخت سلول‌ها
+  grid.innerHTML = '';
+  monthsContainer.innerHTML = '';
+  
+  var monthNames = ['فرو', 'ارد', 'خرد', 'تیر', 'مرد', 'شهر', 'مهر', 'آبا', 'آذر', 'دی', 'بهم', 'اسف'];
+  var lastMonth = -1;
+  var dayIndex = 0;
+  var monthPositions = [];
+
+  for (var i = 0; i < totalDays; i++) {
+    var d = new Date(startDate);
+    d.setDate(d.getDate() + i);
+    
+    var dateStr = toDateStr(d);
+    var count = dailyTotals[dateStr] || 0;
+    var level = getLevel(count);
+    
+    var cell = document.createElement('div');
+    cell.className = 'heat-cell level-' + level;
+    
+    if (dateStr === todayStr()) {
+      cell.classList.add('today');
+    }
+    
+    // تولتیپ
+    var jDate = gToJ(d.getFullYear(), d.getMonth() + 1, d.getDate());
+    var faDate = faDigits(jDate.jy + '/' + jDate.jm + '/' + jDate.jd);
+    var faCount = count > 0 ? fmtFa(count) + ' تست' : 'بدون فعالیت';
+    cell.setAttribute('data-tooltip', faDate + ' — ' + faCount);
+    
+    grid.appendChild(cell);
+    
+    // اضافه کردن برچسب ماه
+    if (jDate.jm !== lastMonth) {
+      monthPositions.push({ pos: dayIndex, name: monthNames[jDate.jm - 1] });
+      lastMonth = jDate.jm;
+    }
+    dayIndex++;
+  }
+
+  // رسم برچسب‌های ماه
+  var cellSize = 17; // 14 + 3 gap
+  monthPositions.forEach(function(m, idx) {
+    // فقط اگه فاصله‌ی کافی از برچسب قبلی داره
+    if (idx > 0 && (m.pos - monthPositions[idx-1].pos) < 3) return;
+    
+    var label = document.createElement('span');
+    label.className = 'heatmap-month-label';
+    label.textContent = m.name;
+    label.style.right = (m.pos * cellSize) + 'px';
+    monthsContainer.appendChild(label);
+  });
+}
   /* ====== Init ====== */
   function init(){
     var now = new Date();
@@ -494,11 +609,12 @@
 
     initTheme();
     renderAll();
+    initScrollReveal();
   }
 
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
-  }
+    }
 })();
