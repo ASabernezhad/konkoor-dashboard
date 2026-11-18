@@ -1,3 +1,9 @@
+@font-face {
+  font-family: "Pinar-VF";
+  src: url("fonts/Pinar-VF[DSTY,KSHD,wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
 :root{
   --bg1:#070b1a; --bg2:#1a1040; --bg3:#0b1e3a;
   --card:rgba(30,41,59,.55);
@@ -18,7 +24,7 @@
 *{ box-sizing:border-box; margin:0; padding:0; }
 
 html, body{
-  font-family:'Vazirmatn', Tahoma, 'Segoe UI', sans-serif;
+  font-family:'Pinar-VF', 'Vazirmatn', Tahoma, 'Segoe UI', sans-serif;
   color:var(--txt);
   background:
     radial-gradient(1200px 600px at 85% -10%, rgba(139,92,246,.28), transparent 60%),
@@ -33,12 +39,6 @@ body{ padding:22px 16px 60px; }
 
 .wrap{ max-width:1040px; margin:0 auto; }
 
-.theme-toggle {
-  position:fixed; top:20px; left:20px; z-index:99;
-  background:var(--card); border:1px solid var(--line);
-  width:44px; height:44px; border-radius:50%; font-size:20px;
-  cursor:pointer; backdrop-filter:blur(10px); color:var(--txt);
-}
 
 .head{
   display:flex; justify-content:space-between; align-items:flex-start;
@@ -55,8 +55,13 @@ h1{
   background:linear-gradient(90deg,#1e293b,#7c3aed 40%,#0891b2);
   -webkit-background-clip:text; background-clip:text;
 }
-
-.sub{ color:var(--muted); font-size:13px; margin-top:6px; }
+.sub{ 
+  color:var(--muted); 
+  font-size:13px; 
+  margin-top:6px; 
+  direction: rtl;
+  text-align: right;
+}
 
 .badge-streak{
   display:flex; align-items:center; gap:10px;
@@ -78,7 +83,7 @@ h1{
   border:1px solid var(--line-strong);
 }
 .countdown .big{
-  font-size:46px; font-weight:900; line-height:1;
+  font-size:64px; font-weight:900; line-height:1.1;
   background:linear-gradient(180deg,#e0e7ff,#a5b4fc 50%,#818cf8);
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
@@ -97,9 +102,6 @@ h1{
 .stat .value.yellow{ color:#facc15; }
 .stat .value.red{ color:#f87171; }
 
-.chart-panel {
-  padding:20px; margin-bottom:24px;
-}
 
 .section-title{
   font-size:16px; font-weight:800; margin:28px 0 12px;
@@ -266,4 +268,253 @@ button:active{ transform:scale(.97); }
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 15px 40px rgba(139,92,246,.3);
+}
+/* ===== تقویم هیت‌مپ ===== */
+.cal-day.heat-0 { background: rgba(148,163,184,.06); }
+.cal-day.heat-1 { background: rgba(34,197,94,.25); border-color: rgba(34,197,94,.3); color: #86efac; }
+.cal-day.heat-2 { background: rgba(34,197,94,.45); border-color: rgba(34,197,94,.4); color: #bbf7d0; }
+.cal-day.heat-3 { background: rgba(34,197,94,.65); border-color: rgba(34,197,94,.5); color: #dcfce7; }
+.cal-day.heat-4 { 
+  background: rgba(34,197,94,.9); 
+  border-color: rgba(34,197,94,.8); 
+  color: #fff;
+  box-shadow: 0 0 8px rgba(34,197,94,.5);
+}
+
+:root.light .cal-day.heat-0 { background: rgba(148,163,184,.15); }
+:root.light .cal-day.heat-1 { background: rgba(34,197,94,.3); color: #166534; }
+:root.light .cal-day.heat-2 { background: rgba(34,197,94,.5); color: #14532d; }
+:root.light .cal-day.heat-3 { background: rgba(34,197,94,.7); color: #052e16; }
+:root.light .cal-day.heat-4 { background: rgba(34,197,94,.95); color: #fff; }
+
+/* حذف نقطه‌ی سبز قدیمی (چون خود سلول رنگ می‌گیره) */
+.cal-day.has-log::after { display: none; }
+
+/* راهنمای تقویم */
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.cal-legend .legend-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* تولتیپ روی سلول‌های تقویم */
+.cal-day[data-tooltip]:hover::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  right: 50%;
+  transform: translateX(50%);
+  background: rgba(15,23,42,.95);
+  color: #fff;
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 10px;
+  white-space: nowrap;
+  font-family: 'Vazirmatn', Tahoma, sans-serif;
+  pointer-events: none;
+  z-index: 100;
+  margin-bottom: 4px;
+  border: 1px solid rgba(139,92,246,.5);
+}
+/* ===== رنگ سلول‌های راهنمای تقویم ===== */
+.cal-legend .legend-cell.heat-0 { background: rgba(148,163,184,.06); }
+.cal-legend .legend-cell.heat-1 { background: rgba(34,197,94,.25); }
+.cal-legend .legend-cell.heat-2 { background: rgba(34,197,94,.45); }
+.cal-legend .legend-cell.heat-3 { background: rgba(34,197,94,.65); }
+.cal-legend .legend-cell.heat-4 { background: rgba(34,197,94,.9); }
+
+:root.light .cal-legend .legend-cell.heat-0 { background: rgba(148,163,184,.15); }
+:root.light .cal-legend .legend-cell.heat-1 { background: rgba(34,197,94,.3); }
+:root.light .cal-legend .legend-cell.heat-2 { background: rgba(34,197,94,.5); }
+:root.light .cal-legend .legend-cell.heat-3 { background: rgba(34,197,94,.7); }
+:root.light .cal-legend .legend-cell.heat-4 { background: rgba(34,197,94,.95); }
+
+/* ===== پترن پس‌زمینه کارت‌ها ===== */
+
+/* پترن ۱: نقطه‌های ریز */
+.card {
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(139,92,246,.12) 1px, transparent 1px);
+  background-size: 16px 16px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+.card > * { position: relative; z-index: 1; }
+/* استفاده از وزن‌های مختلف فونت Pinar */
+h1, .countdown .big {
+  font-variation-settings: "wght" 800;
+}
+.card .name, .section-title {
+  font-variation-settings: "wght" 700;
+}
+.stat .value {
+  font-variation-settings: "wght" 600;
+}
+/* ===== دکمه‌های فرم (نسخه حرفه‌ای) ===== */
+.form-grid button,
+/* کوچیک‌تر کردن دکمه‌های ورود و خروجی (هم‌اندازه) */
+/* کوچیک‌تر کردن دکمه‌های ورود و خروجی (هم‌اندازه) */
+.form-grid .btn-export,
+.form-grid .btn-import {
+  padding: 0;
+  margin: 0;
+  font-size: 12px;
+  gap: 6px;
+  border-radius: 12px;
+  width: 100px;
+  height: 42px;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: none;
+  line-height: 1;
+  display: inline-flex;
+.form-grid .btn-export svg,
+.form-grid .btn-import svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+  font-family: 'Pinar-VF', 'Vazirmatn', Tahoma, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+/* افکت درخشش موقع هاور */
+.form-grid button::before,
+.form-grid .btn-export::before,
+.form-grid .btn-import::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.form-grid button:hover::before,
+.form-grid .btn-export:hover::before,
+.form-grid .btn-import:hover::before {
+  left: 100%;
+}
+
+.form-grid button:hover,
+.form-grid .btn-export:hover,
+.form-grid .btn-import:hover {
+  transform: translateY(-2px);
+}
+
+.form-grid button:active,
+.form-grid .btn-export:active,
+.form-grid .btn-import:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* دکمه‌ی ثبت (اصلی) */
+#btn-add {
+  background: linear-gradient(135deg, #8b5cf6, #6366f1, #22d3ee);
+  background-size: 200% 200%;
+  box-shadow: 0 6px 20px rgba(139,92,246,.4);
+  animation: gradientShift 4s ease infinite;
+}
+
+#btn-add:hover {
+  box-shadow: 0 8px 28px rgba(139,92,246,.7);
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* دکمه‌ی خروجی */
+.btn-export {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow: 0 6px 20px rgba(59,130,246,.35);
+}
+
+.btn-export:hover {
+  box-shadow: 0 8px 28px rgba(59,130,246,.6);
+}
+
+/* دکمه‌ی ورود */
+.btn-import {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 6px 20px rgba(245,158,11,.35);
+}
+
+.btn-import:hover {
+  box-shadow: 0 8px 28px rgba(245,158,11,.6);
+}
+
+/* آیکون داخل دکمه‌ها */
+.form-grid button svg,
+.form-grid .btn-export svg,
+.form-grid .btn-import svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+/* ===== دکمه‌های تقویم ===== */
+.cal-head button {
+  background: rgba(139,92,246,.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(139,92,246,.4);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Pinar-VF', 'Vazirmatn', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cal-head button:hover {
+  background: linear-gradient(135deg, rgba(139,92,246,.4), rgba(99,102,241,.4));
+  color: #fff;
+  border-color: rgba(139,92,246,.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(139,92,246,.4);
+}
+
+.cal-head button:active {
+  transform: translateY(0) scale(0.97);
+}
+/* ===== ظرف نمودار ===== */
+.chart-panel {
+  padding: 24px 16px;
+  margin-bottom: 20px;
+  min-height: 280px;
+}
+
+.chart-panel canvas {
+  max-height: 280px;
+}
+body {
+  overflow-x: hidden;
 }

@@ -69,12 +69,19 @@
     return Math.round((b - a) / 86400000);
   }
   function faDigits(str){ return String(str).replace(/[0-9]/g, function(d){ return '۰۱۲۳۴۵۶۷۸۹'[+d]; }); }
-  function fmtFa(n, dec){
-    dec = dec || 0;
-    if(typeof n !== 'number' || !isFinite(n)) n = 0;
-    try{ return n.toLocaleString('fa-IR', { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
-    catch(e){ return faDigits(n.toFixed(dec)); }
+function fmtFa(n, dec){
+  dec = dec || 0;
+  if(typeof n !== 'number' || !isFinite(n)) n = 0;
+  try{
+    return n.toLocaleString('fa-IR', { 
+      minimumFractionDigits: dec, 
+      maximumFractionDigits: dec,
+      useGrouping: false
+    });
+  }catch(e){
+    return faDigits(n.toFixed(dec));
   }
+}
   function pctExact(done, total){ return total ? (done/total)*100 : 0; }
   function pctLabel(done, total){ return fmtFa(pctExact(done,total), 2) + '٪'; }
 
@@ -187,6 +194,8 @@
     var dataDone = LESSONS.map(function(l){ return done[l.id]; });
     var dataRem = LESSONS.map(function(l){ return Math.max(0, l.total - done[l.id]); });
 
+    var textColor = getComputedStyle(document.documentElement).getPropertyValue('--txt').trim() || '#fff';
+
     if(window._chart) window._chart.destroy();
     window._chart = new Chart(canvas, {
       type: 'bar',
@@ -201,11 +210,42 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--txt') || '#fff', font: { family: 'Vazirmatn' } } }
+          legend: {
+            labels: {
+              color: textColor,
+              font: { family: 'Pinar-VF, Vazirmatn, Tahoma', size: 13, weight: '700' }
+            }
+          },
+          tooltip: {
+            titleFont: { family: 'Pinar-VF, Vazirmatn, Tahoma', size: 13 },
+            bodyFont: { family: 'Pinar-VF, Vazirmatn, Tahoma', size: 13 },
+            callbacks: {
+              label: function(context) {
+                var label = context.dataset.label || '';
+                var value = context.parsed.y;
+                return label + ': ' + fmtFa(value);
+              }
+            }
+          }
         },
         scales: {
-          x: { stacked: true, ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } } },
-          y: { stacked: true, ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } } }
+          x: {
+            stacked: true,
+            ticks: {
+              color: textColor,
+              font: { family: 'Pinar-VF, Vazirmatn, Tahoma', size: 12, weight: '600' }
+            }
+          },
+          y: {
+            stacked: true,
+            ticks: {
+              color: textColor,
+              font: { family: 'Pinar-VF, Vazirmatn, Tahoma', size: 12 },
+              callback: function(value) {
+                return fmtFa(value);
+              }
+            }
+          }
         }
       }
     });
@@ -280,11 +320,30 @@
     });
   }
 
-  /* ====== تقویم ====== */
-  function renderCalendar() {
+   function renderCalendar() {
     var el = document.getElementById('cal-title');
     var grid = document.getElementById('cal-grid');
     var logSet = activeSet();
+    
+    // محاسبه‌ی مجموع تست هر روز
+    var dailyTotals = {};
+    state.logs.forEach(function(lg) {
+      dailyTotals[lg.date] = (dailyTotals[lg.date] || 0) + (Number(lg.done) || 0);
+    });
+    
+    // پیدا کردن بیشترین مقدار برای نرمال‌سازی
+    var values = Object.values(dailyTotals);
+    var maxVal = values.length > 0 ? Math.max.apply(null, values) : 0;
+    if (maxVal === 0) maxVal = 1;
+    
+    function getLevel(count) {
+      if (count === 0) return 0;
+      var ratio = count / maxVal;
+      if (ratio < 0.15) return 1;
+      if (ratio < 0.4) return 2;
+      if (ratio < 0.7) return 3;
+      return 4;
+    }
 
     var monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
 
@@ -315,10 +374,20 @@
 
         var gDate = jToG(currentCalJY, currentCalJM, dayNum);
         var dateStr = toDateStr(gDate);
+        
+        var count = dailyTotals[dateStr] || 0;
+        var level = getLevel(count);
+        
+        // اضافه کردن کلاس گرما
+        dayEl.classList.add('heat-' + level);
 
         if (dateStr === todayStr()) dayEl.classList.add('today');
-        if (logSet.has(dateStr)) dayEl.classList.add('has-log');
         if (dateStr === selectedDate) dayEl.classList.add('selected');
+
+        // تولتیپ
+        var faDate = faDigits(currentCalJY + '/' + currentCalJM + '/' + dayNum);
+        var faCount = count > 0 ? fmtFa(count) + ' تست' : 'بدون فعالیت';
+        dayEl.setAttribute('data-tooltip', faDate + ' — ' + faCount);
 
         dayEl.addEventListener('click', function() {
           selectedDate = dateStr;
@@ -330,7 +399,6 @@
       })(d);
     }
   }
-
   /* ====== اکشن‌ها ====== */
   function renderAll(){
     try{ renderCountdown(); } catch(e){ console.warn(e); }
@@ -342,8 +410,13 @@
       try{ renderLogs(); } catch(e){ console.warn(e); }
 
     try{
+      var now = new Date();
+      var jNow = gToJ(now.getFullYear(), now.getMonth() + 1, now.getDate());
+      var weekdays = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
+      var monthNamesFull = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+      var weekdayName = weekdays[now.getDay()];
       document.getElementById('todayLabel').textContent =
-        new Date().toLocaleDateString('fa-IR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+        weekdayName + ' ' + fmtFa(jNow.jd) + ' ' + monthNamesFull[jNow.jm - 1] + ' ' + fmtFa(jNow.jy);
     }catch(e){
       document.getElementById('todayLabel').textContent = faDigits(todayStr());
     }
@@ -443,19 +516,6 @@
     reader.readAsText(file);
   }
 
-  /* ====== تم ====== */
-  function initTheme() {
-    var saved = localStorage.getItem('theme') || 'dark';
-    document.documentElement.classList.toggle('light', saved === 'light');
-    var btn = document.getElementById('theme-toggle');
-    btn.textContent = saved === 'light' ? '☀️' : '🌙';
-    btn.addEventListener('click', function() {
-      var isLight = document.documentElement.classList.toggle('light');
-      localStorage.setItem('theme', isLight ? 'light' : 'dark');
-      btn.textContent = isLight ? '☀️' : '🌙';
-      renderChart();
-    });
-  }
 
   /* ====== Init ====== */
   function init(){
@@ -492,7 +552,6 @@
       if(e.key === 'Enter') addLog();
     });
 
-    initTheme();
     renderAll();
   }
 

@@ -11,19 +11,17 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <button id="theme-toggle" class="theme-toggle" title="تغییر تم">🌙</button>
 
   <div class="wrap">
     <div class="head">
       <div>
-        <h1>🎯 داشبورد تست</h1>
+        <h1> داشبورد تست</h1>
         <div class="sub" id="todayLabel"></div>
       </div>
       <div class="badge-streak" title="روزهای پشت سرهم">
         <span class="fire">🔥</span>
         <div>
           <div class="n" id="streakBig">۰</div>
-          <div class="cap">روز پشت‌سرهم</div>
         </div>
       </div>
     </div>
@@ -52,6 +50,15 @@
         <span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span>
       </div>
       <div class="cal-grid" id="cal-grid"></div>
+            <div class="cal-legend">
+        <span>کمتر</span>
+        <div class="legend-cell heat-0"></div>
+        <div class="legend-cell heat-1"></div>
+        <div class="legend-cell heat-2"></div>
+        <div class="legend-cell heat-3"></div>
+        <div class="legend-cell heat-4"></div>
+        <span>بیشتر</span>
+      </div>
     </div>
 
     <div class="section-title">📚 درس‌ها · هدف داینامیک</div>
@@ -71,16 +78,32 @@
         <label>تاریخ (از تقویم انتخاب کن)</label>
         <input type="text" id="f-date" readonly style="cursor:pointer; text-align:center; direction:ltr;">
       </div>
-      <div style="display:flex; gap:8px;">
-        <button id="btn-add" style="flex:1;">➕ ثبت</button>
-        <button id="btn-export" class="btn-export">📥 خروجی</button>
-        <label class="btn-import">
-          📤 ورود
-          <input type="file" accept=".csv" hidden id="f-import">
-        </label>
-      </div>
-    </div>
-
+<div style="display:flex; gap:10px;">
+  <button id="btn-add" style="flex:1;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+    ثبت
+  </button>
+  <button id="btn-export" class="btn-export">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="7 10 12 15 17 10"></polyline>
+      <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+    خروجی
+  </button>
+  <label class="btn-import">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="17 8 12 3 7 8"></polyline>
+      <line x1="12" y1="3" x2="12" y2="15"></line>
+    </svg>
+    ورود
+    <input type="file" accept=".csv" hidden id="f-import">
+  </label>
+</div>
 
     <div class="section-title">📝 تاریخچه</div>
     <div class="logs" id="logs"></div>
